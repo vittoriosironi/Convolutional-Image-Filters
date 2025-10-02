@@ -260,7 +260,7 @@ int main() {
     }
     fclose(out);
 
-    // ./../../lis-2.1.10/test/test1 data/A2.mtx data/w.mtx lis_solution/sol.mtx hist.txt -i cg -tol 1e-14 -p jacobi
+    // ./../../lis-2.1.10/test/test1 data/A2.mtx data/w.mtx lis_solution/sol.mtx lis_solution/hist.txt -i cg -tol 1e-14 -p jacobi
 
     // number of processes = 1
     // matrix size = 228000 x 228000 (1138088 nonzero entries)
