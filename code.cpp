@@ -8,9 +8,9 @@
 #include <fstream>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "stb/stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "stb/stb_image_write.h"
 
 using namespace std;
 using namespace Eigen;
@@ -124,7 +124,7 @@ Eigen::VectorXd loadMtxVector(const std::string& filename){
 
 int main() {
     // Punto 1    
-    const char* input_path = "uma.jpg";
+    const char* input_path = "./img/uma.jpg";
     int width, height, channels;
     
     unsigned char* image_data_p_1 = stbi_load(input_path, &width, &height, &channels, 1);
@@ -247,12 +247,12 @@ int main() {
     }
 
     // Punto 8
-    std::string matrixFileOut("./A2.mtx");
+    std::string matrixFileOut("./data/A2.mtx");
     Eigen::saveMarket(A2, matrixFileOut);
 
     // Export vector in .mtx format
     int n = w.size();
-    FILE* out = fopen("w.mtx","w");
+    FILE* out = fopen("./data/w.mtx","w");
     fprintf(out,"%%%%MatrixMarket vector coordinate real general\n");
     fprintf(out,"%d\n", n);
     for (int i=0; i<n; i++) {
@@ -260,7 +260,7 @@ int main() {
     }
     fclose(out);
 
-    // ./../../lis-2.1.10/test/test1 A2.mtx w.mtx sol.mtx hist.txt -i cg -tol 1e-14 -p jacobi
+    // ./../../lis-2.1.10/test/test1 data/A2.mtx data/w.mtx lis_solution/sol.mtx hist.txt -i cg -tol 1e-14 -p jacobi
 
     // number of processes = 1
     // matrix size = 228000 x 228000 (1138088 nonzero entries)
@@ -285,7 +285,7 @@ int main() {
     // Punto 9
 
     // Import solution vector
-    Eigen::VectorXd sol = loadMtxVector("sol.mtx");
+    Eigen::VectorXd sol = loadMtxVector("lis_solution/sol.mtx");
     vector<unsigned char> img_data_p_9(width * height);
     
     for (int i = 0; i < sol.size(); ++i) {
