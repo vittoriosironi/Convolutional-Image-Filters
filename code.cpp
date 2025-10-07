@@ -18,41 +18,6 @@ using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
 
-// void sparseKernel ( SparseMatrix<double> &A1, const MatrixXd& Hav1, int width, int height) {
-//     std::vector<Triplet<double>> triplets;
-//     int kernel_rows = Hav1.rows();
-//     int kernel_cols = Hav1.cols();
-//     int center_r = kernel_rows / 2;
-//     int center_c = kernel_cols / 2;
-    
-//     for (int i = 0; i < height; ++i) {
-//         for (int j = 0; j < width; ++j) {
-//             int current_pixel_idx = i * width + j;
-//             for (int kr = 0; kr < kernel_rows; ++kr) {
-//                 // I flip the rows since if I'm with kr=0 then the picked row is kernel_rows - 1 that is exactly the last row 
-//                 int mm = kernel_rows - 1 - kr; 
-//                 for (int kc = 0; kc < kernel_cols; ++kc) {
-//                     // I use the same logic but for the cols
-//                     int nn = kernel_cols -1 - kc;
-
-
-//                     int neighbor_i = i + (center_r - mm);
-//                     int neighbor_j = j + (center_c - nn);
-                    
-//                     if (neighbor_i >= 0 && neighbor_i < height && neighbor_j >= 0 && neighbor_j < width) {
-//                         int neighbor_pixel_idx = neighbor_i * width + neighbor_j;
-//                         double kernel_val = Hav1(kr, kc);
-//                         if (kernel_val != 0) {
-//                             triplets.push_back(Triplet<double>(current_pixel_idx, neighbor_pixel_idx, kernel_val));
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
-//     A1.setFromTriplets(triplets.begin(), triplets.end());
-// }
-
 void sparseKernel(SparseMatrix<double> &A1, const MatrixXd& Hav1, int width, int height) {
     std::vector<Triplet<double>> triplets;
     int kernel_rows = Hav1.rows();
@@ -90,8 +55,6 @@ Eigen::VectorXd loadMtxVector(const std::string& filename){
     }
 
     std::string line;
-
-    // Skip comments
     while (std::getline(infile, line)) {
         if (line.empty() || line[0] == '%') {
             continue;
@@ -100,7 +63,6 @@ Eigen::VectorXd loadMtxVector(const std::string& filename){
         }
     }
 
-    // Now understand the size of the vector
     int n;
     {
         std::istringstream iss(line);
@@ -143,7 +105,6 @@ int main() {
     cout << "Matrix size: " << height << " x " << width << " (m x n)" << endl;
     
     // Punto 2
-    // Set the random seed
     srand(static_cast<unsigned int>(time(0)));
     MatrixXd mat = MatrixXd::Random(height, width); 
     mat *= 40;
@@ -175,21 +136,18 @@ int main() {
     cout << "Euclidean norm of v: " << v.norm() << endl;
 
     // Punto 4
-    // Costruzione matrice A1 per convoluzione 2D
     SparseMatrix<double> A1(width*height, width*height);
     std::vector<Triplet<double>> triplets;
 
-    // Matrice Hav1 (smoothing kernel)
+    // Kernel of the filter
     MatrixXd Hav1(3, 3);
     Hav1 << 1, 1, 0,
             1, 2, 1,
             0, 1, 1;
     Hav1 /= 8;
 
-
     sparseKernel(A1, Hav1, width, height);
 
-    // Access diagonals of sparse matrix
     cout << "Elementi non nulli A1: " << A1.nonZeros() << endl;
 
     // Punto 5
@@ -211,9 +169,6 @@ int main() {
 
     
     // Punto 6
-    // Creating sparse matrix A2 using the same Hav1 kernel 
-
-    // Matrice Hsh1
     MatrixXd Hsh1(3, 3);
     Hsh1 << 0, -2, 0,
             -2, 9, -2,
@@ -225,7 +180,8 @@ int main() {
 
     cout << "Elementi non nulli A2: " << A2.nonZeros() << endl;
 
-    SparseMatrix<double> B = SparseMatrix<double>(A2.transpose()) - A2;  // Check symmetry
+    // Check of the simmetry of matrix A2
+    SparseMatrix<double> B = SparseMatrix<double>(A2.transpose()) - A2;
     std::cout << "Norm of skew-symmetric part for A2: " << B.norm() << endl;
 
 
@@ -250,7 +206,6 @@ int main() {
     std::string matrixFileOut("./data/A2.mtx");
     Eigen::saveMarket(A2, matrixFileOut);
 
-    // Export vector in .mtx format
     int n = w.size();
     FILE* out = fopen("./data/w.mtx","w");
     fprintf(out,"%%%%MatrixMarket vector coordinate real general\n");
@@ -260,6 +215,7 @@ int main() {
     }
     fclose(out);
 
+    // lis command in order to solve the linear problem
     // ./../../lis-2.1.10/test/test1 data/A2.mtx data/w.mtx lis_solution/sol.mtx lis_solution/hist.txt -i cg -tol 1e-14 -p jacobi
 
     // number of processes = 1
@@ -283,8 +239,6 @@ int main() {
     // CG: relative residual    = 6.663198e-15
 
     // Punto 9
-
-    // Import solution vector
     Eigen::VectorXd sol = loadMtxVector("lis_solution/sol.mtx");
     vector<unsigned char> img_data_p_9(width * height);
     
@@ -301,8 +255,6 @@ int main() {
 
 
     // Punto 10
-    
-    // // Matrice Hed2
     MatrixXd Hed2(3, 3);
     Hed2 << -1, -2, -1,
              0,  0,  0,
@@ -315,7 +267,6 @@ int main() {
     std::cout << "Norm of skew-symmetric part for A3: " << B3.norm() << endl;
 
     // Punto 11
-
     VectorXd w_filtered3 = A3 * v;
 
     vector<unsigned char> img_data_p_11(width * height);
@@ -361,22 +312,6 @@ int main() {
 
         return 1;
     }
-    
-    
-    // // Matrice Hav2
-    // MatrixXd Hav2(5, 5);
-    // Hav2 << 0, 1, 2, 1, 0,
-    //         1, 4, 8, 4, 1,
-    //         2, 8, 16, 8, 2,
-    //         1, 4, 8, 4, 1,
-    //         0, 1, 2, 1, 0;
-    // Hav2 /= 80;
-
-    // // Matrice Hed1
-    // MatrixXd Hed1(3, 3);
-    // Hed1 << 0, -1, 0,
-    //         -1, 4, -1,
-    //         0, -1, 0;
 
     return 0;
 }
