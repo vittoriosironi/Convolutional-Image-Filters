@@ -2,12 +2,12 @@
 
 A C++ implementation of 2D convolutional image filters using sparse matrix operations and the Eigen library. This project demonstrates various image processing techniques including noise addition, smoothing, sharpening, and edge detection.
 
-<div>
-  ![Cat](img/uma.png)
-  ![Noised Cat](img/p_2.png)
-  ![Filtered Cat](img/p_9.png)
-  ![Edge Detection Cat](img/p_11.png)
-</div>
+<p align="center">
+  <img src="img/uma.jpg" alt="Cat" width="150"/>
+  <img src="img/p_2.png" alt="Noised Cat" width="150"/>
+  <img src="img/p_9.png" alt="Filtered Cat" width="150"/>
+  <img src="img/p_11.png" alt="Edge Detection Cat" width="150"/>
+</p>
 
 ## Features
 
